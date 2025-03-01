@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { enable } = require('@electron/remote/main');
 const parseGitignore = require('parse-gitignore');
+const { isBinaryFile } = require('./utils/fileUtils');
 let store;
 (async () => {
     const { default: Store } = await import('electron-store');
@@ -105,7 +106,6 @@ ipcMain.handle('get-extensions', async (event, folderPath) => {
                 const fullPath = path.join(dir, entry.name);
                 const relativePath = path.relative(folderPath, fullPath);
                 const normalizedPath = relativePath.replace(/\\/g, '/');
-
                 // 检查是否被 .gitignore 忽略
                 const isIgnored = gitignorePatterns.some(pattern => {
                     // 处理目录情况
@@ -127,11 +127,9 @@ ipcMain.handle('get-extensions', async (event, folderPath) => {
                     const regex = new RegExp(`^${regexPattern}$`);
                     return regex.test(normalizedPath);
                 });
-
                 if (isIgnored) {
                     continue;
                 }
-                
                 if (entry.isDirectory()) {
                     await scanDir(fullPath);
                 } else {
@@ -140,7 +138,6 @@ ipcMain.handle('get-extensions', async (event, folderPath) => {
                 }
             }
         }
-        
         await scanDir(folderPath);
         return Array.from(extensions);
     } catch (error) {
@@ -236,11 +233,9 @@ ipcMain.handle('export-files', async (event, {
         for (const entry of entries) {
             const fullPath = path.join(dir, entry.name);
             const relativePath = path.relative(folderPath, fullPath);
+            const normalizedPath = relativePath.replace(/\\/g, '/');
 
-            if (ignoreList.some(pattern => relativePath.includes(pattern))) {
-                continue;
-            }
-
+            // 检查是否被 gitignore 忽略
             if (useGitignore && gitignorePatterns.some(pattern => {
                 // 简单的通配符匹配
                 const regexPattern = pattern
@@ -252,13 +247,30 @@ ipcMain.handle('export-files', async (event, {
                 continue;
             }
 
+            // 检查是否在忽略列表中
+            if (ignoreList.some(pattern => relativePath.includes(pattern))) {
+                continue;
+            }
+
             if (entry.isDirectory()) {
                 await processDir(fullPath);
             } else {
                 const ext = path.extname(entry.name);
                 if (selectedExtensions.includes(ext)) {
-                    const content = await fs.readFile(fullPath, 'utf-8');
-                    output.push(`\n${'='.repeat(80)}\nFile: ${relativePath}\n${'='.repeat(80)}\n${content}`);
+                    const potentialBinaryExts = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.zip', '.rar', '.exe', '.dll'];
+                    
+                    if (potentialBinaryExts.includes(ext.toLowerCase()) && await isBinaryFile(fullPath)) {
+                        output.push(`\n${'='.repeat(80)}\nFile: ${relativePath} (Content skipped - Binary file)\n${'='.repeat(80)}`);
+                    } else {
+                        try {
+                            const content = await fs.readFile(fullPath, 'utf-8');
+                            output.push(`\n${'='.repeat(80)}\nFile: ${relativePath}\n${'='.repeat(80)}\n${content}`);
+                        } catch (error) {
+                            output.push(`\n${'='.repeat(80)}\nFile: ${relativePath} (Content skipped - Read error)\n${'='.repeat(80)}`);
+                        }
+                    }
+                } else {
+                    output.push(`\n${'='.repeat(80)}\nFile: ${relativePath} (Content skipped)\n${'='.repeat(80)}`);
                 }
             }
         }
