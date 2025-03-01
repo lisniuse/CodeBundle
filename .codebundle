@@ -8,7 +8,6 @@
   ],
   "ignoreList": [
     "*.jpg",
-    "*.jpeg",
     "*.png",
     "*.gif",
     "*.bmp",
