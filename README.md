@@ -2,9 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-[English Version](#codebundle) | [中文版本](/README-zh.md)
+[English Version](#CodeBundle) | [中文版本](/README-zh.md)
 
-<a name="codebundle"></a>
+<a name="CodeBundle"></a>
 
 ## CodeBundle (English Version)
 
@@ -17,7 +17,7 @@
 *   **Ignore List:** Define files and directories to exclude, with support for wildcards (e.g., `*.log`, `temp/`).
 *   **.gitignore Integration:**  Leverage your project's `.gitignore` file to automatically exclude files and directories.
 *   **Customizable Output:** Choose the destination and filename for the generated code bundle.
-*   **Persistent Configuration:** Saves export settings (selected extensions, ignore list, `.gitignore` usage, output path) in a `.codebundle` file within the project directory for convenient reuse.
+*   **Persistent Configuration:** Saves export settings (selected extensions, ignore list, `.gitignore` usage, output path) in a `.CodeBundle` file within the project directory for convenient reuse.
 *   **Multi-language Support:** Offers both English and Simplified Chinese user interfaces.  The application automatically detects the system language, with an option for manual switching.
 *   **Robust Error Handling:** Presents clear, user-friendly error messages for common issues (e.g., invalid directory, export failure).
 *   **Optimized Builds:** Supports both development (with hot-reloading) and production builds (optimized for distribution).
