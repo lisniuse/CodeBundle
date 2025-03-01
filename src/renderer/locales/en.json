@@ -1,0 +1,32 @@
+{
+  "common": {
+    "projectPath": "Project Path",
+    "selectProject": "Select or enter project directory to export",
+    "browse": "Browse",
+    "fileTypes": "File Types",
+    "selectFileTypes": "Select file types to export",
+    "ignoreList": "Ignore List",
+    "ignoreDescription": "Set files or directories to exclude",
+    "useGitignore": "Use .gitignore rules",
+    "exportSettings": "Export Settings",
+    "exportLocation": "Select code export location",
+    "confirmExport": "Confirm Export",
+    "selectFolder": "Please select project folder",
+    "enterPath": "Please enter or select project path...",
+    "selectExportPath": "Please select export file location...",
+    "ignoreInputPlaceholder": "Enter files or directories to ignore, press Enter to add",
+    "searchFileTypes": "Search file types...",
+    "noMatchingTypes": "No matching file types",
+    "errors": {
+      "selectPath": "Please select project path",
+      "selectType": "Please select at least one file type",
+      "exportFailed": "Export failed: ",
+      "loadConfig": "Failed to load configuration:",
+      "selectExportPath": "Error selecting export path:",
+      "selectFolder": "Error selecting folder: "
+    },
+    "success": {
+      "exported": "File successfully exported to: {{path}}"
+    }
+  }
+}

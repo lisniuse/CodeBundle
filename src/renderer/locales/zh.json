@@ -1,0 +1,32 @@
+{
+  "common": {
+    "projectPath": "项目路径",
+    "selectProject": "选择或输入要导出的项目目录",
+    "browse": "浏览",
+    "fileTypes": "文件类型",
+    "selectFileTypes": "选择需要导出的文件类型",
+    "ignoreList": "忽略列表",
+    "ignoreDescription": "设置需要排除的文件或目录",
+    "useGitignore": "使用 .gitignore 规则",
+    "exportSettings": "导出设置",
+    "exportLocation": "选择代码导出的位置",
+    "confirmExport": "确认导出",
+    "selectFolder": "请选择项目文件夹",
+    "enterPath": "请输入或选择项目路径...",
+    "selectExportPath": "请选择导出文件位置...",
+    "ignoreInputPlaceholder": "输入要忽略的文件或目录，按回车添加",
+    "searchFileTypes": "搜索文件类型...",
+    "noMatchingTypes": "没有匹配的文件类型",
+    "errors": {
+      "selectPath": "请选择项目路径",
+      "selectType": "请至少选择一个文件类型",
+      "exportFailed": "导出失败: ",
+      "loadConfig": "读取配置失败:",
+      "selectExportPath": "选择导出路径时出错:",
+      "selectFolder": "选择文件夹时出错: "
+    },
+    "success": {
+      "exported": "文件已成功导出到: {{path}}"
+    }
+  }
+}
