@@ -26,31 +26,32 @@ function createWindow() {
             contextIsolation: true,
             enableRemote: true,
             preload: path.join(__dirname, 'preload.js'),
-            webSecurity: true
+            webSecurity: false  // 开发模式下禁用 webSecurity
         }
     });
 
-    // 更新 CSP 配置
-    win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-        callback({
-            responseHeaders: {
-                ...details.responseHeaders,
-                'Content-Security-Policy': [
-                    "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: http://localhost:* ws://localhost:*;" +
-                    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
-                    "font-src 'self' data: https://fonts.gstatic.com;" +
-                    "img-src 'self' data: https:;"
-                ]
-            }
+    // 只在生产环境启用 CSP
+    if (process.env.NODE_ENV !== 'development') {
+        win.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+            callback({
+                responseHeaders: {
+                    ...details.responseHeaders,
+                    'Content-Security-Policy': [
+                        "default-src 'self' 'unsafe-inline' 'unsafe-eval' data:;" +
+                        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;" +
+                        "font-src 'self' data: https://fonts.gstatic.com;" +
+                        "img-src 'self' data: https:;"
+                    ]
+                }
+            });
         });
-    });
+    }
 
     win.removeMenu();
-
     enable(win.webContents);
     
     if (process.env.NODE_ENV === 'development') {
-        win.loadURL('http://localhost:3000');
+        win.loadURL('http://localhost:3000/');
         win.webContents.openDevTools();
     } else {
         win.loadFile(path.join(__dirname, '../../build/index.html'));
@@ -85,12 +86,51 @@ ipcMain.handle('get-extensions', async (event, folderPath) => {
         await fs.access(folderPath);
         
         const extensions = new Set();
+        let gitignorePatterns = [];
+        
+        // 检查 .gitignore 是否存在
+        const gitignorePath = path.join(folderPath, '.gitignore');
+        if (await fs.access(gitignorePath).then(() => true).catch(() => false)) {
+            const gitignoreContent = await fs.readFile(gitignorePath, 'utf-8');
+            gitignorePatterns = gitignoreContent
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line && !line.startsWith('#'));
+        }
         
         async function scanDir(dir) {
             const entries = await fs.readdir(dir, { withFileTypes: true });
             
             for (const entry of entries) {
                 const fullPath = path.join(dir, entry.name);
+                const relativePath = path.relative(folderPath, fullPath);
+                const normalizedPath = relativePath.replace(/\\/g, '/');
+
+                // 检查是否被 .gitignore 忽略
+                const isIgnored = gitignorePatterns.some(pattern => {
+                    // 处理目录情况
+                    if (!pattern.includes('*') && !pattern.includes('.')) {
+                        if (entry.isDirectory()) {
+                            return normalizedPath === pattern || 
+                                   normalizedPath.startsWith(pattern + '/');
+                        }
+                        return false;
+                    }
+                    
+                    // 处理文件情况
+                    const regexPattern = pattern
+                        .replace(/\./g, '\\.')
+                        .replace(/\*\*/g, '[^/]*(?:/[^/]*)*')  // **/ 匹配任意层级目录
+                        .replace(/\*/g, '[^/]*')  // * 匹配单层目录/文件名
+                        .replace(/\?/g, '[^/]');  // ? 匹配单个字符
+                    
+                    const regex = new RegExp(`^${regexPattern}$`);
+                    return regex.test(normalizedPath);
+                });
+
+                if (isIgnored) {
+                    continue;
+                }
                 
                 if (entry.isDirectory()) {
                     await scanDir(fullPath);

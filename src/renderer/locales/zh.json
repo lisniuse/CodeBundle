@@ -23,7 +23,8 @@
       "exportFailed": "导出失败: ",
       "loadConfig": "读取配置失败:",
       "selectExportPath": "选择导出路径时出错:",
-      "selectFolder": "选择文件夹时出错: "
+      "selectFolder": "选择文件夹时出错: ",
+      "loadExtensions": "加载文件类型失败: "
     },
     "success": {
       "exported": "文件已成功导出到: {{path}}"

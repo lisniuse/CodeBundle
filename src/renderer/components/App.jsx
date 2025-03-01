@@ -10,6 +10,7 @@ import { readConfig, getExtensions, exportFiles } from '../utils/electronUtils';
 
 const App = () => {
     const { t, i18n } = useTranslation();
+    const [extensionsLoading, setExtensionsLoading] = useState(false);
     const [loading, setLoading] = useState(true);  // 添加加载状态
     const [folderPath, setFolderPath] = useState('');
     const [extensions, setExtensions] = useState([]);
@@ -104,6 +105,17 @@ const App = () => {
             </div>
         );
     }
+    const handleFolderChange = async (path) => {
+        try {
+            setLoading(true);
+            const extensions = await getExtensions(path);
+            setExtensions(extensions);
+        } catch (error) {
+            Message.error(t('errors.loadExtensions') + error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
@@ -126,9 +138,16 @@ const App = () => {
                 <FileSelector 
                     onSelect={setFolderPath}
                     onFolderChange={async (path) => {
-                        const exts = await getExtensions(path);
-                        setExtensions(exts);
-                        await loadConfig(path);
+                        try {
+                            setExtensionsLoading(true);  // 使用专门的加载状态
+                            const exts = await getExtensions(path);
+                            setExtensions(exts);
+                            await loadConfig(path);
+                        } catch (error) {
+                            Message.error(t('errors.loadExtensions') + error.message);
+                        } finally {
+                            setExtensionsLoading(false);
+                        }
                     }}
                 />
                 
@@ -136,6 +155,7 @@ const App = () => {
                     extensions={extensions}
                     selected={selectedExtensions}
                     onSelect={setSelectedExtensions}
+                    loading={extensionsLoading}
                 />
                 
                 <IgnoreList

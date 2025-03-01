@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Card, Checkbox, Typography, Space, Empty, Input } from '@arco-design/web-react';
+import { Card, Checkbox, Typography, Space, Empty, Input, Spin } from '@arco-design/web-react';
 import { IconCode, IconSearch } from '@arco-design/web-react/icon';
 import { useTranslation } from 'react-i18next';
 
 const { Title } = Typography;
 
-const ExtensionSelector = ({ extensions, selected, onSelect }) => {
+const ExtensionSelector = ({ extensions, selected, onSelect, loading }) => {
     const { t } = useTranslation();
     const [searchText, setSearchText] = useState('');
 
@@ -32,30 +32,32 @@ const ExtensionSelector = ({ extensions, selected, onSelect }) => {
                 onChange={setSearchText}
             />
 
-            {filteredExtensions.length > 0 ? (
-                <Space wrap size={16}>
-                    {filteredExtensions.map(ext => (
-                        <Checkbox
-                            key={ext}
-                            checked={selected.includes(ext)}
-                            onChange={(checked) => {
-                                if (checked) {
-                                    onSelect([...selected, ext]);
-                                } else {
-                                    onSelect(selected.filter(e => e !== ext));
-                                }
-                            }}
-                        >
-                            {ext}
-                        </Checkbox>
-                    ))}
-                </Space>
-            ) : (
-                <Empty
-                    description={searchText ? t('noMatchingTypes') : t('selectFolder')}
-                    style={{ margin: '24px 0' }}
-                />
-            )}
+            <Spin loading={loading} style={{ display: 'block' }}>
+                {filteredExtensions.length > 0 ? (
+                    <Space wrap size={16}>
+                        {filteredExtensions.map(ext => (
+                            <Checkbox
+                                key={ext}
+                                checked={selected.includes(ext)}
+                                onChange={(checked) => {
+                                    if (checked) {
+                                        onSelect([...selected, ext]);
+                                    } else {
+                                        onSelect(selected.filter(e => e !== ext));
+                                    }
+                                }}
+                            >
+                                {ext}
+                            </Checkbox>
+                        ))}
+                    </Space>
+                ) : (
+                    <Empty
+                        description={searchText ? t('noMatchingTypes') : t('selectFolder')}
+                        style={{ margin: '24px 0' }}
+                    />
+                )}
+            </Spin>
         </Card>
     );
 };

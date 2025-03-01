@@ -23,7 +23,8 @@
       "exportFailed": "Export failed: ",
       "loadConfig": "Failed to load configuration:",
       "selectExportPath": "Error selecting export path:",
-      "selectFolder": "Error selecting folder: "
+      "selectFolder": "Error selecting folder: ",
+      "loadExtensions": "Failed to load file types: "
     },
     "success": {
       "exported": "File successfully exported to: {{path}}"
